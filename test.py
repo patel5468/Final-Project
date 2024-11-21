@@ -147,4 +147,4 @@ plt.tight_layout()
 plt.savefig('sum_of_all_scales.png')
 
 
-# -------- TASK 3 --------
+
