@@ -14,7 +14,8 @@ f = nc.Dataset('/fs/ess/PAS2856/SPEEDY_ensemble_data/reference_ens/201103130000.
 #create variable geopotential based on ncdump and subset the array to have only lat and lon
 geopot_original = f.variables['phi'][0, 0, 0, :, :]
 #print(geopot_original.shape)#Verify shape is (48,96)
-#remove everyother longitude to make the shape (48,48)
+
+#remove every other longitude to make the shape (48,48)
 geopot_subsetted = np.array(geopot_original[:, ::2], dtype='f8')  #This means...(all lat, every other lon) yields shape (48,48)
 #print(geopot_subsetted.shape) #Verify shape is (48,48)
 
@@ -200,3 +201,19 @@ def three_scale_decomposition(data2d):
     
     return data_large_band_2d, data_medium_band_2d, data_small_band_2d
 
+#Testing the function by applying it to the geopotential array of member 0, model number 0, and time index 0
+
+data_large, data_medium, data_small = three_scale_decomposition(geopot_subsetted)
+
+
+fig, axes = plt.subplots(3, 1, figsize=(8, 12))
+
+axes[0].imshow(data_large, extent=(0, 360, -90, 90))
+axes[0].set_title('Large Scale (l = 0-7)')
+axes[1].imshow(data_medium, extent=(0, 360, -90, 90))
+axes[1].set_title('Medium Scale (l = 8-16)')
+axes[2].imshow(data_small, extent=(0, 360, -90, 90))
+axes[2].set_title('Small Scale (l > 16)')
+
+plt.tight_layout()
+plt.savefig('three_scale_decomposition_test.png')
