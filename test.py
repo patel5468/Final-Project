@@ -83,23 +83,23 @@ plt.tight_layout()
 plt.savefig('test.png')
 '''
 
-#Filter for 16th largest scale
+#Filter for 8th largest scale
 geopot_coeffs_filtered1 = geopot_coeffs.copy()
 lmax1 = 8
-geopot_coeffs_filtered1[:, lmax1:, :] = 0  #Set values for l > 15 to 0
+geopot_coeffs_filtered1[:, lmax1:, :] = 0  #Set values for l > 8 to 0
 topo_filtered1 = pysh.expand.MakeGridDH(geopot_coeffs_filtered1, sampling=1)
 
-#2nd plot: Sum of the 16th to 32nd largest scales (l = 16 to 31)
+#2nd plot: Sum of the 8th to 16nd largest scales (l = 8 to 16)
 geopot_coeffs_filtered2 = geopot_coeffs.copy()
 lmin2, lmax2 = 8, 16
-geopot_coeffs_filtered2[:, :lmin2, :] = 0  #Set values for l < 16 to 0
-geopot_coeffs_filtered2[:, lmax2:, :] = 0  #Set values for l > 31 to 0
+geopot_coeffs_filtered2[:, :lmin2, :] = 0  #Set values for l < 8 to 0
+geopot_coeffs_filtered2[:, lmax2:, :] = 0  #Set values for l > 16 to 0
 topo_filtered2 = pysh.expand.MakeGridDH(geopot_coeffs_filtered2, sampling=1)
 
-#3rd plot: Sum of the remaining scales (l > 32)
+#3rd plot: Sum of the remaining scales (l > 16)
 geopot_coeffs_filtered3 = geopot_coeffs.copy()
 lmin3 = 16
-geopot_coeffs_filtered3[:, :lmin3, :] = 0  #Set values for l < 32 to 0
+geopot_coeffs_filtered3[:, :lmin3, :] = 0  #Set values for l < 16 to 0
 topo_filtered3 = pysh.expand.MakeGridDH(geopot_coeffs_filtered3, sampling=1)
 
 
@@ -109,19 +109,19 @@ fig, axes = plt.subplots(3, 1, figsize=(8, 12))
 
 #Plot the sum of the 16 largest scales and save it as the first plot
 axes[0].imshow(topo_filtered1, extent=(0, 360, -90, 90))
-axes[0].set(xlabel='Longitude', ylabel='Latitude', title='1 = 0 - 15', 
+axes[0].set(xlabel='Longitude', ylabel='Latitude', title='1 = 0 - 7', 
             yticks=np.arange(-90, 135, 45), xticks=np.arange(0, 405, 45)
         )
 
 #Plot the sum of the 16th to 32nd largest scales and save it as the second plot
 axes[1].imshow(topo_filtered2, extent=(0, 360, -90, 90))
-axes[1].set(xlabel='Longitude', ylabel='Latitude', title='l = 16 - 31', 
+axes[1].set(xlabel='Longitude', ylabel='Latitude', title='l = 8 - 16', 
             yticks=np.arange(-90, 135, 45), xticks=np.arange(0, 405, 45)
         )
 
 #Plot the sum of the remaining scales (l > 32) and save it as the third plot
 axes[2].imshow(topo_filtered3, extent=(0, 360, -90, 90))
-axes[2].set(xlabel='Longitude', ylabel='Latitude', title='l > 32', 
+axes[2].set(xlabel='Longitude', ylabel='Latitude', title='l > 16', 
             yticks=np.arange(-90, 135, 45), xticks=np.arange(0, 405, 45)
         )
 
