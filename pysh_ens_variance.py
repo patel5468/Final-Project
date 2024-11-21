@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 # -------- TASK 1 --------
 
 # Load the NetCDF file containing geopotential data
-f = nc.Dataset('/fs/ess/PAS2856/SPEEDY_ensemble_data/reference_ens/201103130000.nc', 'r')
+f = nc.Dataset('/fs/ess/PAS2856/SPEEDY_ensemble_data/reference_ens/201101010000.nc', 'r')
 
 #create variable geopotential based on ncdump and subset the array to have only lat and lon
 geopot_original = f.variables['phi'][0, 0, 0, :, :]
@@ -127,11 +127,11 @@ axes[2].set(xlabel='Longitude', ylabel='Latitude', title='l > 16',
 #Format the figure to fit each plot within it and eliminate excess white space
 plt.tight_layout()
 #Save the figure as a PNG
-#plt.savefig('geopotential_scales.png')
+plt.savefig('geopotential_scales.png')
 
 #Sum the three topographic grids
 topo_sum = topo_filtered1 + topo_filtered2 + topo_filtered3
-#print(topo_sum.shape)
+print(topo_sum.shape)
 
 #Plot the sum
 fig, ax = plt.subplots(figsize=(8, 6))
@@ -143,7 +143,7 @@ ax.set(xlabel='Longitude', ylabel='Latitude', title='Sum of all scales',
 #Adjust layout
 plt.tight_layout()
 #Save the result
-#plt.savefig('sum_of_all_scales.png')
+plt.savefig('sum_of_all_scales.png')
 
 # -------- TASK 2 --------
 
@@ -218,3 +218,6 @@ axes[2].set_title('Small Scale (l > 16)')
 plt.tight_layout()
 plt.savefig('three_scale_decomposition_test.png')
 #Task 2.b, yes the three arrays (three_scale_decomposition_test.png) match the output from  task 1 g (geopotential_scales.png). 
+
+#Load March 1 2011 geopotential arrays: 
+f_march = nc.Dataset('/fs/ess/PAS2856/SPEEDY_ensemble_data/reference_ens/201103010000.nc', 'r')
