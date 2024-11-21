@@ -94,10 +94,10 @@ geopot_coeffs_filtered2[:, :lmin2, :] = 0  #Set values for l < 16 to 0
 geopot_coeffs_filtered2[:, lmax2:, :] = 0  #Set values for l > 31 to 0
 topo_filtered2 = pysh.expand.MakeGridDH(geopot_coeffs_filtered2, sampling=2)
 
-#3rd plot: Sum of the remaining scales (l > 31)
+#3rd plot: Sum of the remaining scales (l > 32)
 geopot_coeffs_filtered3 = geopot_coeffs.copy()
 lmin3 = 32
-geopot_coeffs_filtered3[:, :lmin3, :] = 0  #Set values for l < 32 to 0
+geopot_coeffs_filtered3[:, lmin3:, :] = 0  #Set values for l < 32 to 0
 topo_filtered3 = pysh.expand.MakeGridDH(geopot_coeffs_filtered3, sampling=2)
 
 #Create empty figure with 3 rows and 1 column for plots
@@ -115,9 +115,9 @@ axes[1].set(xlabel='Longitude', ylabel='Latitude', title='l = 16 - 31',
             yticks=np.arange(-90, 135, 45), xticks=np.arange(0, 405, 45)
         )
 
-#Plot the sum of the remaining scales (l > 31) and save it as the third plot
+#Plot the sum of the remaining scales (l > 32) and save it as the third plot
 axes[2].imshow(topo_filtered3, extent=(0, 360, -90, 90))
-axes[2].set(xlabel='Longitude', ylabel='Latitude', title='l > 31', 
+axes[2].set(xlabel='Longitude', ylabel='Latitude', title='l > 32', 
             yticks=np.arange(-90, 135, 45), xticks=np.arange(0, 405, 45)
         )
 
