@@ -128,11 +128,11 @@ axes[2].set(xlabel='Longitude', ylabel='Latitude', title='l > 16',
 #Format the figure to fit each plot within it and eliminate excess white space
 plt.tight_layout()
 #Save the figure as a PNG
-plt.savefig('geopotential_scales.png')
+#plt.savefig('geopotential_scales.png')
 
 #Sum the three topographic grids
 topo_sum = topo_filtered1 + topo_filtered2 + topo_filtered3
-print(topo_sum.shape)
+#print(topo_sum.shape)
 
 #Plot the sum
 fig, ax = plt.subplots(figsize=(8, 6))
@@ -144,7 +144,7 @@ ax.set(xlabel='Longitude', ylabel='Latitude', title='Sum of all scales',
 #Adjust layout
 plt.tight_layout()
 #Save the result
-plt.savefig('sum_of_all_scales.png')
+#plt.savefig('sum_of_all_scales.png')
 
 
 def three_scale_decomposition(data2d):
