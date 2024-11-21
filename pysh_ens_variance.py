@@ -217,3 +217,4 @@ axes[2].set_title('Small Scale (l > 16)')
 
 plt.tight_layout()
 plt.savefig('three_scale_decomposition_test.png')
+#Task 2.b, yes the three arrays (three_scale_decomposition_test.png) match the output from  task 1 g (geopotential_scales.png). 
