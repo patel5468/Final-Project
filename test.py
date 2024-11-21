@@ -6,6 +6,8 @@ import netCDF4 as nc
 import pyshtools as pysh
 import matplotlib.pyplot as plt
 
+# -------- TASK 1 --------
+
 # Load the NetCDF file containing geopotential data
 f = nc.Dataset('/fs/ess/PAS2856/SPEEDY_ensemble_data/reference_ens/201103130000.nc', 'r')
 
@@ -83,22 +85,24 @@ plt.savefig('test.png')
 
 #Filter for 16th largest scale
 geopot_coeffs_filtered1 = geopot_coeffs.copy()
-lmax1 = 16
+lmax1 = 8
 geopot_coeffs_filtered1[:, lmax1:, :] = 0  #Set values for l > 15 to 0
-topo_filtered1 = pysh.expand.MakeGridDH(geopot_coeffs_filtered1, sampling=2)
+topo_filtered1 = pysh.expand.MakeGridDH(geopot_coeffs_filtered1, sampling=1)
 
 #2nd plot: Sum of the 16th to 32nd largest scales (l = 16 to 31)
 geopot_coeffs_filtered2 = geopot_coeffs.copy()
-lmin2, lmax2 = 16, 32
+lmin2, lmax2 = 8, 16
 geopot_coeffs_filtered2[:, :lmin2, :] = 0  #Set values for l < 16 to 0
 geopot_coeffs_filtered2[:, lmax2:, :] = 0  #Set values for l > 31 to 0
-topo_filtered2 = pysh.expand.MakeGridDH(geopot_coeffs_filtered2, sampling=2)
+topo_filtered2 = pysh.expand.MakeGridDH(geopot_coeffs_filtered2, sampling=1)
 
 #3rd plot: Sum of the remaining scales (l > 32)
 geopot_coeffs_filtered3 = geopot_coeffs.copy()
-lmin3 = 32
-geopot_coeffs_filtered3[:, lmin3:, :] = 0  #Set values for l < 32 to 0
-topo_filtered3 = pysh.expand.MakeGridDH(geopot_coeffs_filtered3, sampling=2)
+lmin3 = 16
+geopot_coeffs_filtered3[:, :lmin3, :] = 0  #Set values for l < 32 to 0
+topo_filtered3 = pysh.expand.MakeGridDH(geopot_coeffs_filtered3, sampling=1)
+
+
 
 #Create empty figure with 3 rows and 1 column for plots
 fig, axes = plt.subplots(3, 1, figsize=(8, 12))
@@ -142,3 +146,5 @@ plt.tight_layout()
 #Save the result
 plt.savefig('sum_of_all_scales.png')
 
+
+# -------- TASK 3 --------
