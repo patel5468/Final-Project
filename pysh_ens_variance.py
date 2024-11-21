@@ -102,8 +102,6 @@ lmin3 = 16
 geopot_coeffs_filtered3[:, :lmin3, :] = 0  #Set values for l < 16 to 0
 topo_filtered3 = pysh.expand.MakeGridDH(geopot_coeffs_filtered3, sampling=1)
 
-
-
 #Create empty figure with 3 rows and 1 column for plots
 fig, axes = plt.subplots(3, 1, figsize=(8, 12))
 
@@ -146,48 +144,59 @@ plt.tight_layout()
 #Save the result
 #plt.savefig('sum_of_all_scales.png')
 
+# -------- TASK 2 --------
 
 def three_scale_decomposition(data2d):
     """
-    Decompose a 2D array into three spatial scale bands.
+    Decompose a 2D array (data2d) into three spatial scale bands:
+    - Large scale (low frequencies)
+    - Medium scale (intermediate frequencies)
+    - Small scale (high frequencies)
     
     Parameters:
-    data2d (numpy.ndarray): Input 2D array.
+    -----------
+    data2d : 2D numpy array
+        Input 2D array representing the geopotential or other spatial data.
     
     Returns:
-    numpy.ndarray: Large scale band.
-    numpy.ndarray: Medium scale band.
-    numpy.ndarray: Small scale band.
-    """
-    data_large_band_2d = gaussian_filter(data2d, sigma=10)
-    data_medium_band2d = gaussian_filter(data2d, sigma=5) - data_large_band_2d
-    data_small_band2d = data2d - gaussian_filter(data2d, sigma=5)
+    --------
+    data_large_band_2d : 2D numpy array
+        The 2D array with large scales (low-frequency components).
     
-    return data_large_band_2d, data_medium_band2d, data_small_band2d
+    data_medium_band_2d : 2D numpy array
+        The 2D array with medium scales (intermediate-frequency components).
+    
+    data_small_band_2d : 2D numpy array
+        The 2D array with small scales (high-frequency components).
+    """
+    
+    #Perform spherical harmonic expansion to get the coefficients
+    geopot_coeffs = pysh.expand.SHExpandDH(data2d)
+    
+    #Define the scale bands for decomposition:
+        #Large scale: l = 0 to 7
+        #Medium scale: l = 8 to 16
+        #Small scale: l > 16
+    #The above scales are based on Task 1 definitions
 
-def compute_ensemble_3scale_variance(ensemble_data):
-    """
-    Compute ensemble variances for three scale bands.
+    #Filter for large scale (0 to 7)
+    geopot_coeffs_large = geopot_coeffs.copy()
+    lmax_large = 7
+    geopot_coeffs_large[:, lmax_large+1:, :] = 0  
+    data_large_band_2d = pysh.expand.MakeGridDH(geopot_coeffs_large, sampling=1)
     
-    Parameters:
-    ensemble_data (numpy.ndarray): 4D array of ensemble data (shape: (1000, 8, 48, 48)).
+    #Filter for medium scale (8 to 16)
+    geopot_coeffs_medium = geopot_coeffs.copy()
+    lmin_medium, lmax_medium = 8, 16
+    geopot_coeffs_medium[:, :lmin_medium, :] = 0 
+    geopot_coeffs_medium[:, lmax_medium+1:, :] = 0  
+    data_medium_band_2d = pysh.expand.MakeGridDH(geopot_coeffs_medium, sampling=1)
     
-    Returns:
-    numpy.ndarray: Large scale band variance.
-    numpy.ndarray: Medium scale band variance.
-    numpy.ndarray: Small scale band variance.
-    """
-    large_band_ensemble = np.empty_like(ensemble_data)
-    medium_band_ensemble = np.empty_like(ensemble_data)
-    small_band_ensemble = np.empty_like(ensemble_data)
+    #Filter for small scale (l > 16)
+    geopot_coeffs_small = geopot_coeffs.copy()
+    lmin_small = 16
+    geopot_coeffs_small[:, :lmin_small, :] = 0 
+    data_small_band_2d = pysh.expand.MakeGridDH(geopot_coeffs_small, sampling=1)
     
-    for i in range(ensemble_data.shape[0]):
-        for j in range(ensemble_data.shape[1]):
-            large_band_ensemble[i, j], medium_band_ensemble[i, j], small_band_ensemble[i, j] = three_scale_decomposition(ensemble_data[i, j])
-    
-    large_scale_variance = np.var(large_band_ensemble, axis=0)
-    medium_scale_variance = np.var(medium_band_ensemble, axis=0)
-    small_scale_variance = np.var(small_band_ensemble, axis=0)
-    
-    return large_scale_variance, medium_scale_variance, small_scale_variance
-    
+    return data_large_band_2d, data_medium_band_2d, data_small_band_2d
+
