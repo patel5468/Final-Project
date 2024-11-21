@@ -149,4 +149,3 @@ plt.savefig('sum_of_all_scales.png')
 
 # -------- TASK 3 --------
 
-#THis is a test for branches and sanity
