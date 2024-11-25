@@ -1,6 +1,6 @@
 #Activate the environment
 #>>conda activate final_proj_env
-# Import necessary packages
+#Import necessary packages
 import numpy as np
 import netCDF4 as nc
 import pyshtools as pysh
@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 
 # -------- TASK 1 --------
 
-# Load the NetCDF file containing geopotential data
+#Load the NetCDF file containing geopotential data
 f = nc.Dataset('/fs/ess/PAS2856/SPEEDY_ensemble_data/reference_ens/201101010000.nc', 'r')
 
 #create variable geopotential based on ncdump and subset the array to have only lat and lon
@@ -25,7 +25,7 @@ geopot_coeffs = pysh.expand.SHExpandDH(geopot_subsetted)
 #Power Spectrum Calculation
 power_per_l = pysh.spectralanalysis.spectrum(geopot_coeffs)
 
-# Plot the power spectrum
+#Plot the power spectrum
 degrees = np.arange(geopot_coeffs.shape[1]) #simple way to get the range of degrees for longitude
 fig, ax = plt.subplots(1, 1, figsize=(6, 6)) #create empty figure
 ax.plot(degrees, power_per_l) #plot the power spectrum
@@ -230,17 +230,17 @@ data_large_band_2d = np.zeros((1000, 8, 48, 48), dtype='f8')
 data_medium_band_2d = np.zeros((1000, 8, 48, 48), dtype='f8')
 data_small_band_2d = np.zeros((1000, 8, 48, 48), dtype='f8')
 
-# Loop over all ensemble members and apply three_scale_decomposition
-for ens in range(geopot_march.shape[0]):  # Loop over 1000 ensemble members
-    for mod in range(geopot_march.shape[1]):  # Loop over 8 model levels
-        march_geopot_2d = np.array(geopot_march[ens, mod, :, :], dtype='f8') # Extract 2D geopotential data for each ensemble member and level
+#Loop over all ensemble members and apply three_scale_decomposition
+for ens in range(geopot_march.shape[0]):  #Loop over 1000 ensemble members
+    for mod in range(geopot_march.shape[1]):  #Loop over 8 model levels
+        march_geopot_2d = np.array(geopot_march[ens, mod, :, :], dtype='f8') #Extract 2D geopotential data for each ensemble member and level
         #I added np.array specifically to specify float type to 64 instead of 32 because 32 was not working and it worked after converting the float type...similar issue occured above.
         #print(march_geopot_2d.shape) #--> (48,48)
         
         #Apply three_scale_decomposition to each 2D array
         data_large, data_medium, data_small = three_scale_decomposition(march_geopot_2d)
 
-        # Store the results in the corresponding arrays
+        #Store the results in the corresponding arrays
         data_large_band_2d[ens, mod, :, :] = data_large
         data_medium_band_2d[ens, mod, :, :] = data_medium
         data_small_band_2d[ens, mod, :, :] = data_small
@@ -249,6 +249,72 @@ for ens in range(geopot_march.shape[0]):  # Loop over 1000 ensemble members
 #print(data_large_band_2d.shape,data_medium_band_2d.shape,data_small_band_2d.shape) #OUTPUT--> (1000, 8, 48, 48) (1000, 8, 48, 48) (1000, 8, 48, 48)
 
 
+#Compute the variance for each scale band array (large, medium, and small)
+def compute_ensemble_variance(data_band_2d):
+    """
+    Compute the ensemble variance for each spatial scale band.
+    
+    Parameters:
+    -----------
+    data_band_2d : 4D numpy array
+        The 4D array of shape (ensemble, model levels, lat, lon)
+    
+    Returns:
+    --------
+    variance : 3D numpy array
+        The computed variance for each spatial scale, with shape (model_levels, lat, lon)
+    """
+    #Calculate the variance along the ensemble axis (axis 0)
+    variance = np.var(data_band_2d, axis=0)  #Variance along the first axis (ensemble dimension)
+    
+    return variance
 
+#Compute variances for large, medium, and small scale bands
+variance_large = compute_ensemble_variance(data_large_band_2d)
+variance_medium = compute_ensemble_variance(data_medium_band_2d)
+variance_small = compute_ensemble_variance(data_small_band_2d)
 
+#Verify the resulting shape for each variance array
+#print(variance_large.shape, variance_medium.shape, variance_small.shape )  #OUTPUT --> (8, 48, 48) (8, 48, 48) (8, 48, 48)
+
+#Plotting variance for large, medium, and small scale bands because...Why,not?
+fig, axes = plt.subplots(3, 1, figsize=(8, 12))
+
+axes[0].imshow(variance_large[0, :, :], extent=(0, 360, -90, 90))
+axes[0].set_title('Variance - Large Scale (l = 0-7)')
+axes[1].imshow(variance_medium[0, :, :], extent=(0, 360, -90, 90))
+axes[1].set_title('Variance - Medium Scale (l = 8-16)')
+axes[2].imshow(variance_small[0, :, :], extent=(0, 360, -90, 90))
+axes[2].set_title('Variance - Small Scale (l > 16)')
+
+plt.tight_layout()
+plt.savefig('variance_visualization.png')
+quit()
+#Part d and e: Decompose and compute ensemble variances--> Shuvo's part from final_project.py (for my reference)
+def compute_ensemble_3scale_variance(ensemble_data):
+    """
+    Compute ensemble variances for three scale bands.
+    
+    Parameters:
+    ensemble_data (numpy.ndarray): 4D array of ensemble data (shape: (1000, 8, 48, 48)).
+    
+    Returns:
+    numpy.ndarray: Large scale band variance.
+    numpy.ndarray: Medium scale band variance.
+    numpy.ndarray: Small scale band variance.
+    """
+    large_band_ensemble = np.empty_like(ensemble_data)
+    medium_band_ensemble = np.empty_like(ensemble_data)
+    small_band_ensemble = np.empty_like(ensemble_data)
+    
+    for i in range(ensemble_data.shape[0]):
+        for j in range(ensemble_data.shape[1]):
+            large_band_ensemble[i, j], medium_band_ensemble[i, j], small_band_ensemble[i, j] = three_scale_decomposition(ensemble_data[i, j])
+    
+    #Compute variances for each scale band
+    large_scale_variance = np.var(large_band_ensemble, axis=0)
+    medium_scale_variance = np.var(medium_band_ensemble, axis=0)
+    small_scale_variance = np.var(small_band_ensemble, axis=0)
+    
+    return large_scale_variance, medium_scale_variance, small_scale_variance
 
