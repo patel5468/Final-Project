@@ -127,11 +127,11 @@ axes[2].set(xlabel='Longitude', ylabel='Latitude', title='l > 16',
 #Format the figure to fit each plot within it and eliminate excess white space
 plt.tight_layout()
 #Save the figure as a PNG
-plt.savefig('geopotential_scales.png')
+#plt.savefig('geopotential_scales.png')
 
 #Sum the three topographic grids
 topo_sum = topo_filtered1 + topo_filtered2 + topo_filtered3
-print(topo_sum.shape)
+#print(topo_sum.shape)
 
 #Plot the sum
 fig, ax = plt.subplots(figsize=(8, 6))
@@ -143,7 +143,7 @@ ax.set(xlabel='Longitude', ylabel='Latitude', title='Sum of all scales',
 #Adjust layout
 plt.tight_layout()
 #Save the result
-plt.savefig('sum_of_all_scales.png')
+#plt.savefig('sum_of_all_scales.png')
 
 # -------- TASK 2 --------
 
@@ -205,7 +205,6 @@ def three_scale_decomposition(data2d):
 
 data_large, data_medium, data_small = three_scale_decomposition(geopot_subsetted)
 
-
 fig, axes = plt.subplots(3, 1, figsize=(8, 12))
 
 axes[0].imshow(data_large, extent=(0, 360, -90, 90))
@@ -216,8 +215,31 @@ axes[2].imshow(data_small, extent=(0, 360, -90, 90))
 axes[2].set_title('Small Scale (l > 16)')
 
 plt.tight_layout()
-plt.savefig('three_scale_decomposition_test.png')
-#Task 2.b, yes the three arrays (three_scale_decomposition_test.png) match the output from  task 1 g (geopotential_scales.png). 
+#plt.savefig('three_scale_decomposition_test.png')
+#print(data_large.shape, data_medium.shape, data_small.shape) #OUTPUT: (48, 48) (48, 48) (48, 48)
+    #Task 2.b, yes the three arrays (three_scale_decomposition_test.png) match the output from  task 1 g (geopotential_scales.png). 
 
 #Load March 1 2011 geopotential arrays: 
 f_march = nc.Dataset('/fs/ess/PAS2856/SPEEDY_ensemble_data/reference_ens/201103010000.nc', 'r')
+#Load geopotential data keeping everything except time...Format via ncdump = (ensemble, time, lev, lat, lon)
+geopot_march = f.variables['phi'][:, 0, :, :, ::2] #This loads all data except time, and loads every other longitude value
+#print(geopot_march.shape) #confirm that shape = (1000,8,48,48)
+
+# Initialize arrays to store the decomposition results
+data_large_band_2d = np.zeros((1000, 8, 48, 48), dtype='f8')
+data_medium_band_2d = np.zeros((1000, 8, 48, 48), dtype='f8')
+data_small_band_2d = np.zeros((1000, 8, 48, 48), dtype='f8')
+
+# Loop over all ensemble members and apply three_scale_decomposition
+for i in range(geopot_march.shape[0]):  # Loop over 1000 ensemble members
+    data_large, data_medium, data_small = three_scale_decomposition(geopot_march[i, 0, :, :])
+    
+    # Store the results in the corresponding arrays
+    data_large_band_2d[i] = data_large
+    data_medium_band_2d[i] = data_medium
+    data_small_band_2d[i] = data_small
+
+#Now, data_large_band_2d_all, data_medium_band_2d_all, and data_small_band_2d_all will contain the decomposed data for all ensemble members with shape (1000, 8, 48, 48)
+
+
+
