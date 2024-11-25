@@ -225,21 +225,30 @@ f_march = nc.Dataset('/fs/ess/PAS2856/SPEEDY_ensemble_data/reference_ens/2011030
 geopot_march = f.variables['phi'][:, 0, :, :, ::2] #This loads all data except time, and loads every other longitude value
 #print(geopot_march.shape) #confirm that shape = (1000,8,48,48)
 
-# Initialize arrays to store the decomposition results
+#Initialize arrays to store the decomposition results
 data_large_band_2d = np.zeros((1000, 8, 48, 48), dtype='f8')
 data_medium_band_2d = np.zeros((1000, 8, 48, 48), dtype='f8')
 data_small_band_2d = np.zeros((1000, 8, 48, 48), dtype='f8')
 
 # Loop over all ensemble members and apply three_scale_decomposition
-for i in range(geopot_march.shape[0]):  # Loop over 1000 ensemble members
-    data_large, data_medium, data_small = three_scale_decomposition(geopot_march[i, 0, :, :])
-    
-    # Store the results in the corresponding arrays
-    data_large_band_2d[i] = data_large
-    data_medium_band_2d[i] = data_medium
-    data_small_band_2d[i] = data_small
+for ens in range(geopot_march.shape[0]):  # Loop over 1000 ensemble members
+    for mod in range(geopot_march.shape[1]):  # Loop over 8 model levels
+        march_geopot_2d = np.array(geopot_march[ens, mod, :, :], dtype='f8') # Extract 2D geopotential data for each ensemble member and level
+        #I added np.array specifically to specify float type to 64 instead of 32 because 32 was not working and it worked after converting the float type...similar issue occured above.
+        #print(march_geopot_2d.shape) #--> (48,48)
+        
+        #Apply three_scale_decomposition to each 2D array
+        data_large, data_medium, data_small = three_scale_decomposition(march_geopot_2d)
 
-#Now, data_large_band_2d_all, data_medium_band_2d_all, and data_small_band_2d_all will contain the decomposed data for all ensemble members with shape (1000, 8, 48, 48)
+        # Store the results in the corresponding arrays
+        data_large_band_2d[ens, mod, :, :] = data_large
+        data_medium_band_2d[ens, mod, :, :] = data_medium
+        data_small_band_2d[ens, mod, :, :] = data_small
+
+#Verify the resulting shape for each of the decomposed arrays
+#print(data_large_band_2d.shape,data_medium_band_2d.shape,data_small_band_2d.shape) #OUTPUT--> (1000, 8, 48, 48) (1000, 8, 48, 48) (1000, 8, 48, 48)
+
+
 
 
 
