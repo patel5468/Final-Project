@@ -85,42 +85,42 @@ plt.savefig('test.png')
 '''
 
 #Filter for 8th largest scale
-geopot_coeffs_filtered1 = geopot_coeffs.copy()
-lmax1 = 8
+geopot_coeffs_filtered1 = geopot_coeffs.copy() #copies the indices and data of geopot_coeffs for manipulation without altering original dataset
+lmax1 = 8 #sets the max (start point) to the 8th largest scale
 geopot_coeffs_filtered1[:, lmax1:, :] = 0  #Set values for l > 8 to 0
-topo_filtered1 = pysh.expand.MakeGridDH(geopot_coeffs_filtered1, sampling=1)
+topo_filtered1 = pysh.expand.MakeGridDH(geopot_coeffs_filtered1, sampling=1) #Performs the spherical harmonics expansion on the filtered dataset
 
 #2nd plot: Sum of the 8th to 16nd largest scales (l = 8 to 16)
-geopot_coeffs_filtered2 = geopot_coeffs.copy()
-lmin2, lmax2 = 8, 16
+geopot_coeffs_filtered2 = geopot_coeffs.copy() #copies the indices and data of geopot_coeffs for manipulation without altering original dataset
+lmin2, lmax2 = 8, 16 #Sets the range of largest scales as 8 : 16
 geopot_coeffs_filtered2[:, :lmin2, :] = 0  #Set values for l < 8 to 0
 geopot_coeffs_filtered2[:, lmax2:, :] = 0  #Set values for l > 16 to 0
-topo_filtered2 = pysh.expand.MakeGridDH(geopot_coeffs_filtered2, sampling=1)
+topo_filtered2 = pysh.expand.MakeGridDH(geopot_coeffs_filtered2, sampling=1) #Performs the spherical harmonics expansion on the filtered dataset
 
 #3rd plot: Sum of the remaining scales (l > 16)
-geopot_coeffs_filtered3 = geopot_coeffs.copy()
-lmin3 = 16
+geopot_coeffs_filtered3 = geopot_coeffs.copy() #copies the indices and data of geopot_coeffs for manipulation without altering original dataset
+lmin3 = 16 #sets the min value to 16th largest scales
 geopot_coeffs_filtered3[:, :lmin3, :] = 0  #Set values for l < 16 to 0
-topo_filtered3 = pysh.expand.MakeGridDH(geopot_coeffs_filtered3, sampling=1)
+topo_filtered3 = pysh.expand.MakeGridDH(geopot_coeffs_filtered3, sampling=1) #Performs the spherical harmonics expansion on the filtered dataset
 
 #Create empty figure with 3 rows and 1 column for plots
 fig, axes = plt.subplots(3, 1, figsize=(8, 12))
 
 #Plot the sum of the 16 largest scales and save it as the first plot
-axes[0].imshow(topo_filtered1, extent=(0, 360, -90, 90))
-axes[0].set(xlabel='Longitude', ylabel='Latitude', title='1 = 0 - 7', 
+axes[0].imshow(topo_filtered1, extent=(0, 360, -90, 90))  #1st matplotlib imshow plot in figure 
+axes[0].set(xlabel='Longitude', ylabel='Latitude', title='1 = 0 - 7', #setting labels and titles as well as ranges for x and y axis
             yticks=np.arange(-90, 135, 45), xticks=np.arange(0, 405, 45)
         )
 
 #Plot the sum of the 16th to 32nd largest scales and save it as the second plot
-axes[1].imshow(topo_filtered2, extent=(0, 360, -90, 90))
-axes[1].set(xlabel='Longitude', ylabel='Latitude', title='l = 8 - 16', 
+axes[1].imshow(topo_filtered2, extent=(0, 360, -90, 90))  #2nd matplotlib imshow plot in figure 
+axes[1].set(xlabel='Longitude', ylabel='Latitude', title='l = 8 - 16', #setting labels and titles as well as ranges for x and y axis
             yticks=np.arange(-90, 135, 45), xticks=np.arange(0, 405, 45)
         )
 
 #Plot the sum of the remaining scales (l > 32) and save it as the third plot
-axes[2].imshow(topo_filtered3, extent=(0, 360, -90, 90))
-axes[2].set(xlabel='Longitude', ylabel='Latitude', title='l > 16', 
+axes[2].imshow(topo_filtered3, extent=(0, 360, -90, 90))  #3rd matplotlib imshow plot in figure 
+axes[2].set(xlabel='Longitude', ylabel='Latitude', title='l > 16',  #setting labels and titles as well as ranges for x and y axis
             yticks=np.arange(-90, 135, 45), xticks=np.arange(0, 405, 45)
         )
 
@@ -134,9 +134,9 @@ topo_sum = topo_filtered1 + topo_filtered2 + topo_filtered3
 #print(topo_sum.shape)
 
 #Plot the sum
-fig, ax = plt.subplots(figsize=(8, 6))
-ax.imshow(topo_sum, extent=(0, 360, -90, 90))
-ax.set(xlabel='Longitude', ylabel='Latitude', title='Sum of all scales', 
+fig, ax = plt.subplots(figsize=(8, 6)) #creates an empty figure to plot the sums
+ax.imshow(topo_sum, extent=(0, 360, -90, 90)) #matplotlib imshow to plot the sums as "a pseudocolor image"
+ax.set(xlabel='Longitude', ylabel='Latitude', title='Sum of all scales', #setting labels and titles as well as ranges for x and y axis
         yticks=np.arange(-90, 135, 45), xticks=np.arange(0, 405, 45)
         )
 
@@ -147,7 +147,7 @@ plt.tight_layout()
 
 # -------- TASK 2 --------
 
-def three_scale_decomposition(data2d):
+def three_scale_decomposition(data2d): #function named three_scale_decomposition which takes a 2d array as an input
     """
     Decompose a 2D array (data2d) into three spatial scale bands:
     - Large scale (low frequencies)
@@ -171,7 +171,7 @@ def three_scale_decomposition(data2d):
         The 2D array with small scales (high-frequency components).
     """
     
-    #Perform spherical harmonic expansion to get the coefficients
+    #Perform spherical harmonic expansion
     geopot_coeffs = pysh.expand.SHExpandDH(data2d)
     
     #Define the scale bands for decomposition:
@@ -181,40 +181,45 @@ def three_scale_decomposition(data2d):
     #The above scales are based on Task 1 definitions
 
     #Filter for large scale (0 to 7)
-    geopot_coeffs_large = geopot_coeffs.copy()
-    lmax_large = 7
-    geopot_coeffs_large[:, lmax_large+1:, :] = 0  
-    data_large_band_2d = pysh.expand.MakeGridDH(geopot_coeffs_large, sampling=1)
+    geopot_coeffs_large = geopot_coeffs.copy() #Creates copy of geopot_coeffs to manipulate for the large scale
+    lmax_large = 7 #max for large scale
+    geopot_coeffs_large[:, lmax_large+1:, :] = 0  #Set all geopotential coefficients beyond lmax_large to zero.
+    data_large_band_2d = pysh.expand.MakeGridDH(geopot_coeffs_large, sampling=1) #Performs spherical harmonic expansion to the large scale dataset
     
     #Filter for medium scale (8 to 16)
-    geopot_coeffs_medium = geopot_coeffs.copy()
-    lmin_medium, lmax_medium = 8, 16
-    geopot_coeffs_medium[:, :lmin_medium, :] = 0 
-    geopot_coeffs_medium[:, lmax_medium+1:, :] = 0  
-    data_medium_band_2d = pysh.expand.MakeGridDH(geopot_coeffs_medium, sampling=1)
+    geopot_coeffs_medium = geopot_coeffs.copy() #Creates copy of geopot_coeffs to manipulate for the medium scale
+    lmin_medium, lmax_medium = 8, 16 #range of scale
+    geopot_coeffs_medium[:, :lmin_medium, :] = 0 #Set all geopotential coefficients below lmin_medium to zero.
+    geopot_coeffs_medium[:, lmax_medium+1:, :] = 0  #Set all geopotential coefficients above lmax_medium to zero. 
+    data_medium_band_2d = pysh.expand.MakeGridDH(geopot_coeffs_medium, sampling=1) #Performs spherical harmonic expansion to the medium scale dataset
     
     #Filter for small scale (l > 16)
-    geopot_coeffs_small = geopot_coeffs.copy()
-    lmin_small = 16
-    geopot_coeffs_small[:, :lmin_small, :] = 0 
-    data_small_band_2d = pysh.expand.MakeGridDH(geopot_coeffs_small, sampling=1)
+    geopot_coeffs_small = geopot_coeffs.copy() #Creates copy of geopot_coeffs to manipulate for the small scale
+    lmin_small = 16 #min for small scale
+    geopot_coeffs_small[:, :lmin_small, :] = 0 #Set all geopotential coefficients below lmin_small to zero.
+    data_small_band_2d = pysh.expand.MakeGridDH(geopot_coeffs_small, sampling=1) #Performs spherical harmonic expansion to the small scale dataset
     
-    return data_large_band_2d, data_medium_band_2d, data_small_band_2d
+    return data_large_band_2d, data_medium_band_2d, data_small_band_2d #returns the expanded datasets (2d arrays)
 
 #Testing the function by applying it to the geopotential array of member 0, model number 0, and time index 0
 
+
+#The function decomposes the data into three components: 
+#-->data_large: captures the large-scale components.
+#-->data_medium: captures the medium-scale components.
+#-->data_small: captures the small-scale components.
 data_large, data_medium, data_small = three_scale_decomposition(geopot_subsetted)
 
-fig, axes = plt.subplots(3, 1, figsize=(8, 12))
+fig, axes = plt.subplots(3, 1, figsize=(8, 12)) #Creates empty figure with 3 rows, 1 column. Specifies figsize to 8x12
 
-axes[0].imshow(data_large, extent=(0, 360, -90, 90))
-axes[0].set_title('Large Scale (l = 0-7)')
-axes[1].imshow(data_medium, extent=(0, 360, -90, 90))
-axes[1].set_title('Medium Scale (l = 8-16)')
-axes[2].imshow(data_small, extent=(0, 360, -90, 90))
-axes[2].set_title('Small Scale (l > 16)')
+axes[0].imshow(data_large, extent=(0, 360, -90, 90)) #First plot to show large scale components
+axes[0].set_title('Large Scale (l = 0-7)') #Sets title for the plot
+axes[1].imshow(data_medium, extent=(0, 360, -90, 90)) #Second plot to show medium scale components
+axes[1].set_title('Medium Scale (l = 8-16)') #Sets title for the plot
+axes[2].imshow(data_small, extent=(0, 360, -90, 90)) #Third plot to show small scale components
+axes[2].set_title('Small Scale (l > 16)') #Sets title for the plot
 
-plt.tight_layout()
+plt.tight_layout() #Fixes the plot to be neat and tidy
 #plt.savefig('three_scale_decomposition_test.png')
 #print(data_large.shape, data_medium.shape, data_small.shape) #OUTPUT: (48, 48) (48, 48) (48, 48)
     #Task 2.b, yes the three arrays (three_scale_decomposition_test.png) match the output from  task 1 g (geopotential_scales.png). 
@@ -288,8 +293,8 @@ axes[2].imshow(variance_small[0, :, :], extent=(0, 360, -90, 90))
 axes[2].set_title('Variance - Small Scale (l > 16)')
 
 plt.tight_layout()
-plt.savefig('variance_visualization.png')
-quit()
+#plt.savefig('variance_visualization.png')
+
 #Part d and e: Decompose and compute ensemble variances--> Shuvo's part from final_project.py (for my reference)
 def compute_ensemble_3scale_variance(ensemble_data):
     """
@@ -307,8 +312,10 @@ def compute_ensemble_3scale_variance(ensemble_data):
     medium_band_ensemble = np.empty_like(ensemble_data)
     small_band_ensemble = np.empty_like(ensemble_data)
     
-    for i in range(ensemble_data.shape[0]):
-        for j in range(ensemble_data.shape[1]):
+    for i in range(ensemble_data.shape[0]): #Iterate over the rows of the ensemble data (ensemble_data.shape[0])
+        for j in range(ensemble_data.shape[1]): #Iterate over the columns of the ensemble data (ensemble_data.shape[1])
+            #Perform a three-scale decomposition on each individual element (ensemble_data[i, j])
+            #Decompose into large, medium, and small scale components
             large_band_ensemble[i, j], medium_band_ensemble[i, j], small_band_ensemble[i, j] = three_scale_decomposition(ensemble_data[i, j])
     
     #Compute variances for each scale band
@@ -318,3 +325,4 @@ def compute_ensemble_3scale_variance(ensemble_data):
     
     return large_scale_variance, medium_scale_variance, small_scale_variance
 
+#Sanity Checks for compute_ensemble_3scale_variance funtion
