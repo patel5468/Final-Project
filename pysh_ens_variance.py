@@ -227,7 +227,7 @@ plt.tight_layout() #Fixes the plot to be neat and tidy
 #Load March 1 2011 geopotential arrays: 
 f_march = nc.Dataset('/fs/ess/PAS2856/SPEEDY_ensemble_data/reference_ens/201103010000.nc', 'r')
 #Load geopotential data keeping everything except time...Format via ncdump = (ensemble, time, lev, lat, lon)
-geopot_march = f.variables['phi'][:, 0, :, :, ::2] #This loads all data except time, and loads every other longitude value
+geopot_march = np.array(f.variables['phi'][:, 0, :, :, ::2], dtype='f8') #This loads all data except time, and loads every other longitude value
 #print(geopot_march.shape) #confirm that shape = (1000,8,48,48)
 
 #Initialize arrays to store the decomposition results
@@ -323,6 +323,19 @@ def compute_ensemble_3scale_variance(ensemble_data):
     medium_scale_variance = np.var(medium_band_ensemble, axis=0)
     small_scale_variance = np.var(small_band_ensemble, axis=0)
     
-    return large_scale_variance, medium_scale_variance, small_scale_variance
+    #Sanity Checks for compute_ensemble_3scale_variance funtion
+    #Plotting variance for large, medium, and small scale bands because...Why,not?
+    fig, axes = plt.subplots(3, 1, figsize=(8, 12))
 
-#Sanity Checks for compute_ensemble_3scale_variance funtion
+    axes[0].imshow(large_scale_variance[0, :, :], extent=(0, 360, -90, 90))
+    axes[0].set_title('Variance - Large Scale (l = 0-7)')
+    axes[1].imshow(medium_scale_variance[0, :, :], extent=(0, 360, -90, 90))
+    axes[1].set_title('Variance - Medium Scale (l = 8-16)')
+    axes[2].imshow(small_scale_variance[0, :, :], extent=(0, 360, -90, 90))
+    axes[2].set_title('Variance - Small Scale (l > 16)')
+
+    plt.tight_layout()
+    plt.savefig('variance_visualization_3scaledecomp.png')
+    return large_scale_variance, medium_scale_variance, small_scale_variance
+#Sanity check
+compute_ensemble_3scale_variance(geopot_march)
