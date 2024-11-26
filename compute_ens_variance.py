@@ -335,7 +335,7 @@ def compute_ensemble_3scale_variance(ensemble_data):
     axes[2].set_title('Variance - Small Scale (l > 16)')
 
     plt.tight_layout()
-    plt.savefig('variance_visualization_3scaledecomp.png')
+    #plt.savefig('variance_visualization_3scaledecomp.png')
     return large_scale_variance, medium_scale_variance, small_scale_variance
 #Sanity check
 #compute_ensemble_3scale_variance(geopot_march)
@@ -384,6 +384,8 @@ def main():
     ensemble_name = sys.argv[2]
     variable_name = sys.argv[3]
     output_directory = sys.argv[4]
+
+
 
     date_str = get_date_from_days(days_since_20110101)
     file_name = f"{variable_name}_{ensemble_name}_{date_str}_variance.pkl"
