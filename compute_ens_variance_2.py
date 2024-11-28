@@ -333,7 +333,7 @@ import os
 import pickle
 import numpy as np
 from datetime import datetime, timedelta
-from pysh_ens_variance import compute_ensemble_3scale_variance
+from pysh_ens_variance import compute_ensemble_3scale_variance 
 
 def get_date_from_days(days_since_20110101):
     """
@@ -376,7 +376,7 @@ def main():
     output_path = os.path.join(output_directory, file_name)
 
     # Assuming the data is loaded from some source, here we use dummy data
-    #data = np.random.rand(8, 48, 48)  # Replace with actual data loading
+    #data = np.random.rand(8, 48, 48)  # Replace with actual data loading 
 
     # Compute variances for the three scale bands
     large_scale_variance, medium_scale_variance, small_scale_variance = compute_ensemble_3scale_variance(geopot_subsetted)
