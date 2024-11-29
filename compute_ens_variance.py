@@ -56,15 +56,30 @@ def main():
     with nc.Dataset(netcdf_file, 'r') as dataset:
         geopot_original = dataset.variables[variable_name][0, 0, 0, :, :]
         sigma = dataset.variables['lev'][:] #'lev' = atmosphere_sigma_coordinate from netCDF file
-
     # Remove every other longitude to make the shape (48,48)
     geopot_subsetted = np.array(geopot_original[:, ::2], dtype='f8')
     
     # Perform the spherical harmonic expansion
     geopot_coeffs = pysh.expand.SHExpandDH(geopot_subsetted)
-    
+
+    #Extract data for all model levels and compute variances for each level across ensemble members
+    small_scale_variance = np.zeros_like(geopot_coeffs[0, 0, :, :])  
+    medium_scale_variance = np.zeros_like(geopot_coeffs[0, 0, :, :]) 
+    large_scale_variance = np.zeros_like(geopot_coeffs[0, 0, :, :])
+
+    for level in range(geopot_coeffs.shape[2]):  #Loop over all 8 model levels
+        level_data = geopot_coeffs[:, 0, level, :, :]  #Shape (ensemble, lat, lon) for a specific level
+        
+        #Compute the variance for the current level across the ensemble members
+        l_scale, m_scale, s_scale = compute_ensemble_3scale_variance(level_data)
+        
+        #Store the variances for the current level
+        large_scale_variance[level, :, :] = l_scale
+        medium_scale_variance[level, :, :] = m_scale
+        small_scale_variance[level, :, :] = s_scale
+
     # Compute variances for the three scale bands
-    large_scale_variance, medium_scale_variance, small_scale_variance = compute_ensemble_3scale_variance(geopot_subsetted)
+    #large_scale_variance, medium_scale_variance, small_scale_variance = compute_ensemble_3scale_variance(geopot_subsetted)
     
     #theoretical pressure using sigma from netCDF file:  
     theoretical_pressure = compute_theoretical_pressure(sigma)
