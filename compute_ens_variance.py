@@ -5,7 +5,7 @@ import pickle
 import numpy as np
 from datetime import datetime, timedelta
 import netCDF4 as nc
-from pysh_ens_variance_virag import compute_ensemble_3scale_variance 
+from pysh_ens_variance import compute_ensemble_3scale_variance 
 import pyshtools as pysh
 
 def get_date_from_days(days_since_20110101):
@@ -54,14 +54,14 @@ def main():
 
     # Read data from the netCDF file
     with nc.Dataset(netcdf_file, 'r') as dataset:
-        geopot_original = dataset.variables[variable_name][0, 0, 0, :, :]
+        geopot_original = np.array(dataset.variables[variable_name][:, 0, :, :, ::2], dtype='f8') #read in 4D array for compute_ensemble_3scale_variance
         sigma = dataset.variables['lev'][:] #'lev' = atmosphere_sigma_coordinate from netCDF file
     # Remove every other longitude to make the shape (48,48)
-    geopot_subsetted = np.array(geopot_original[:, ::2], dtype='f8')
+    #geopot_subsetted = np.array(geopot_original[:, ::2], dtype='f8')
     
     # Perform the spherical harmonic expansion
-    geopot_coeffs = pysh.expand.SHExpandDH(geopot_subsetted)
-
+    geopot_coeffs = pysh.expand.SHExpandDH(geopot_original)
+    '''
     #Extract data for all model levels and compute variances for each level across ensemble members
     small_scale_variance = np.zeros_like(geopot_coeffs[0, 0, :, :])  
     medium_scale_variance = np.zeros_like(geopot_coeffs[0, 0, :, :]) 
@@ -77,9 +77,10 @@ def main():
         large_scale_variance[level, :, :] = l_scale
         medium_scale_variance[level, :, :] = m_scale
         small_scale_variance[level, :, :] = s_scale
+    '''
 
     # Compute variances for the three scale bands
-    #large_scale_variance, medium_scale_variance, small_scale_variance = compute_ensemble_3scale_variance(geopot_subsetted)
+    large_scale_variance, medium_scale_variance, small_scale_variance = compute_ensemble_3scale_variance(geopot_original)
     
     #theoretical pressure using sigma from netCDF file:  
     theoretical_pressure = compute_theoretical_pressure(sigma)
