@@ -43,7 +43,7 @@ def main():
     ensemble_name = sys.argv[2] #accepted inputs: reference_ens or perturbed_ens
     variable_name = sys.argv[3] 
     #netcdf_file = sys.argv[4]
-    output_directory = sys.argv[5]
+    output_directory = sys.argv[4]
 
     date_str = get_date_from_days(days_since_20110101)
     file_name = f"{variable_name}_{ensemble_name}_{date_str}_variance.pkl"
