@@ -39,19 +39,23 @@ def main():
         print("Usage: python compute_ens_variance.py <days_since_20110101> <ensemble_name> <variable_name> <netcdf_file> <output_directory>")
         sys.exit(1)
 
-    days_since_20110101 = int(sys.argv[1])
-    ensemble_name = sys.argv[2]
-    variable_name = sys.argv[3]
-    netcdf_file = sys.argv[4]
+    days_since_20110101 = int(sys.argv[1]) 
+    ensemble_name = sys.argv[2] #accepted inputs: reference_ens or perturbed_ens
+    variable_name = sys.argv[3] 
+    #netcdf_file = sys.argv[4]
     output_directory = sys.argv[5]
 
     date_str = get_date_from_days(days_since_20110101)
     file_name = f"{variable_name}_{ensemble_name}_{date_str}_variance.pkl"
     output_path = os.path.join(output_directory, file_name)
 
+    #Construct the filename for the netCDF file based on the provided ensemble and date
+    netcdf_file = f"/fs/ess/PAS2856/SPEEDY_ensemble_data/{ensemble_name}/{get_date_from_days(days_since_20110101)}.nc"
+
     # Read data from the netCDF file
     with nc.Dataset(netcdf_file, 'r') as dataset:
         geopot_original = dataset.variables[variable_name][0, 0, 0, :, :]
+        sigma = dataset.variables['lev'][:] #'lev' = atmosphere_sigma_coordinate from netCDF file
 
     # Remove every other longitude to make the shape (48,48)
     geopot_subsetted = np.array(geopot_original[:, ::2], dtype='f8')
@@ -61,9 +65,8 @@ def main():
     
     # Compute variances for the three scale bands
     large_scale_variance, medium_scale_variance, small_scale_variance = compute_ensemble_3scale_variance(geopot_subsetted)
-
-    # Placeholder sigma values 
-    sigma = np.linspace(0.1, 1.0, 8)  # Replace with actual sigma values. I don't see that in the question. 
+    
+    #theoretical pressure using sigma from netCDF file:  
     theoretical_pressure = compute_theoretical_pressure(sigma)
 
     result = {
