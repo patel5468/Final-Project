@@ -108,7 +108,7 @@ def main():
     interval_days = int(sys.argv[3])
     variable_name = sys.argv[4]
     ensemble_type = sys.argv[5]
-    directory = sys.argv[6]
+    directory = sys.argv[6] #directory = '/fs/scratch/PAS2856/AS4194_Project/PatelShuvo'
 
     data = load_pickle_files(start_date, end_date, interval_days, variable_name, ensemble_type, directory)
     
