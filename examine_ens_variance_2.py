@@ -26,8 +26,9 @@ def load_pickle_files(start_date, end_date, interval, variable_name, ensemble_ty
     end_date = datetime.strptime(end_date, "%Y%m%d")
     
     while current_date <= end_date:
-        file_name = f"{variable_name}_{ensemble_type}_{current_date.strftime('%Y%m%d')}_variance.pkl"
+        file_name = f"{variable_name}_{ensemble_type}_{current_date.strftime('%Y%m%d%H%M')}_variance.pkl"
         file_path = os.path.join(directory, file_name)
+        print( file_path)
         if os.path.exists(file_path):
             with open(file_path, 'rb') as f:
                 data.append(pickle.load(f))
@@ -99,16 +100,16 @@ def plot_normalized_variance(data_perturbed, data_reference, variable_name):
     plt.savefig('sample_figure5.png', bbox_inches='tight', dpi=300)
 
 def main():
-    if len(sys.argv) != 7:
-        print("Usage: python examine_variance_behavior.py <start_date> <end_date> <interval_days> <variable_name> <ensemble_type> <directory>")
-        sys.exit(1)
+    # if len(sys.argv) != 7:
+    #     print("Usage: python examine_variance_behavior.py <start_date> <end_date> <interval_days> <variable_name> <ensemble_type> <directory>")
+    #     sys.exit(1)
 
     start_date = sys.argv[1]
     end_date = sys.argv[2]
     interval_days = int(sys.argv[3])
     variable_name = sys.argv[4]
     ensemble_type = sys.argv[5]
-    directory = sys.argv[6]
+    # directory = sys.argv[6]
 
     # Updated the directory path 
     directory = '/fs/scratch/PAS2856/AS4194_Project/PatelShuvo'
