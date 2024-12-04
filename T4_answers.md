@@ -2,7 +2,7 @@ The answer to the questions as part of Task 4:
 
 ###
 
-***1. How does the perturbed ensemble variance vary with time relative to the reference ensemble's variance?**
+**1. How does the perturbed ensemble variance vary with time relative to the reference ensemble's variance?**
 The perturbed ensemble's variance increases over time and approaches saturation relative to the reference ensemble's variance, as indicated by the normalized variance reaching approximately 1.
 
 ###
