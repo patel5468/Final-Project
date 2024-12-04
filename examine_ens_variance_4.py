@@ -24,14 +24,39 @@ def load_pickle_files(start_date, end_date, interval, variable_name, ensemble_ty
     
     return data
 
+def calculate_normalized_variances(data):
+    """
+    Calculate normalized variances for each scale.
+    """
+    normalized_data = []
+    for entry in data:
+        # Extract variances for perturbed and reference ensembles
+        large_perturbed = np.array(entry['large scale average variance'])
+        medium_perturbed = np.array(entry['medium scale average variance'])
+        small_perturbed = np.array(entry['small scale average variance'])
+        
+        large_reference = np.array(entry['large scale reference variance'])
+        medium_reference = np.array(entry['medium scale reference variance'])
+        small_reference = np.array(entry['small scale reference variance'])
+        
+        # Calculate normalized variances
+        normalized_entry = {
+            'date': entry['date'],
+            'large scale normalized variance': large_perturbed / large_reference,
+            'medium scale normalized variance': medium_perturbed / medium_reference,
+            'small scale normalized variance': small_perturbed / small_reference,
+        }
+        normalized_data.append(normalized_entry)
+    return normalized_data
+
 def plot_variance_diagrams(data, variable_name, ensemble_type):
     """
     Generate level-time and/or latitude-time diagrams to show how ensemble variances grow over time.
     """
     times = [datetime.strptime(entry['date'], "%Y%m%d%H%M") for entry in data]
-    large_variances = [entry['large scale average variance'] for entry in data]
-    medium_variances = [entry['medium scale average variance'] for entry in data]
-    small_variances = [entry['small scale average variance'] for entry in data]
+    large_variances = [entry['large scale normalized variance'] for entry in data]
+    medium_variances = [entry['medium scale normalized variance'] for entry in data]
+    small_variances = [entry['small scale normalized variance'] for entry in data]
     
     fig, axes = plt.subplots(3, 1, figsize=(12, 18))
     
@@ -44,10 +69,10 @@ def plot_variance_diagrams(data, variable_name, ensemble_type):
         ax.set_xticks(range(0, len(times), tick_step))
         ax.set_xticklabels([times[i].strftime('%Y-%m-%d') for i in range(0, len(times), tick_step)], rotation=45)
         
-        # Format Y-axis labels
+        #Format Y-axis labels
         ax.set_yticks(range(0, var_matrix.shape[1], max(var_matrix.shape[1] // 10, 1)))
         ax.set_title(f'{scale} Scale Variance over Time for {variable_name} ({ensemble_type})')
-        ax.set_xlabel('Time')
+        ax.set_xlabel('Time') #Set x axis label
         ax.set_ylabel('Vertical Levels')
         fig.colorbar(im, ax=ax, orientation='vertical')
     
@@ -68,7 +93,8 @@ def main():
         print("No data loaded. Please check the input parameters and the existence of pickle files.")
         sys.exit(1)
     
-    plot_variance_diagrams(data, variable_name, ensemble_type)
+    normalized_data = calculate_normalized_variances(data) #Call function for normalized variance calculations
+    plot_variance_diagrams(normalized_data, variable_name, ensemble_type) #Plot the variance by calling the function to plot
 
 if __name__ == "__main__":
     main()
