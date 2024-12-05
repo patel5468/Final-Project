@@ -1,8 +1,0 @@
-1. How does the perturbed ensemble variance vary with time relative to the reference ensemble's variance?
-    The reference variance plots are more elongated compared to the perturbed variance. For the perturbed ensemble, there is a small increase over time from the start date to the end date. 
-    The reference ensemble increases variance immediately and stays relatively constant at each level throughout the entire time period. Level 6 exibits a change from increasing, reaching a maxima
-    and then decreasing once again. 
-
-
-2. For each SPEEDY model variable, for each spatial scale band and for each model level, how many days did it take for the perturbed ensemble's variance to saturate?
-    Which of spatial scale's ensemble variance saturates first? Which spatial scale's ensemble variance saturates last?
